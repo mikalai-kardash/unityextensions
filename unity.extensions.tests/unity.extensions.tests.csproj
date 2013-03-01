@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Logging\CommonLoggingExtensionTests.cs" />
+    <Compile Include="Logging\LoggerTester.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\CustomProvider.cs" />
     <Compile Include="Settings\CustomSettingAttribute.cs" />
