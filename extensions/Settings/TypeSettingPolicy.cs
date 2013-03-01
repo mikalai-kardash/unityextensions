@@ -27,6 +27,10 @@ namespace Microsoft.Practices.Unity.Settings
 
         public void Apply(IBuilderContext context, object existing)
         {
+            if (SettingCount == 0)
+            {
+                return;
+            }
             foreach (var prop in _settings.Keys.ToArray())
             {
                 var setting = _settings[prop];
