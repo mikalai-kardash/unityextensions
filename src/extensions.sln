@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "unity.extensions", "unity.extensions.csproj", "{C52900FB-C0CB-429A-8213-EEC4A12949E7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "unity.extensions", "unity.extensions\unity.extensions.csproj", "{C52900FB-C0CB-429A-8213-EEC4A12949E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "unity.extensions.tests", "..\unity.extensions.tests\unity.extensions.tests.csproj", "{F61616E6-A634-4687-9EF7-6428AD392629}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "unity.extensions.tests", "unity.extensions.tests\unity.extensions.tests.csproj", "{F61616E6-A634-4687-9EF7-6428AD392629}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "unity.extensions.logging", "unity.extensions.logging\unity.extensions.logging.csproj", "{71F8E286-AAA7-4FA4-97BA-098D618354CB}"
 EndProject

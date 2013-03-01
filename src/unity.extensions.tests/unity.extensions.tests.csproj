@@ -62,11 +62,11 @@
     <Compile Include="Settings\TypeSettingPolicyTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\extensions\unity.extensions.csproj">
+    <ProjectReference Include="..\unity.extensions\unity.extensions.csproj">
       <Project>{c52900fb-c0cb-429a-8213-eec4a12949e7}</Project>
       <Name>unity.extensions</Name>
     </ProjectReference>
-    <ProjectReference Include="..\extensions\unity.extensions.logging\unity.extensions.logging.csproj">
+    <ProjectReference Include="..\unity.extensions.logging\unity.extensions.logging.csproj">
       <Project>{71f8e286-aaa7-4fa4-97ba-098d618354cb}</Project>
       <Name>unity.extensions.logging</Name>
     </ProjectReference>
