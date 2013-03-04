@@ -58,10 +58,19 @@
     <Compile Include="Settings\SettingsExtension.cs" />
     <Compile Include="Settings\TypeRegistrationSettingStrategy.cs" />
     <Compile Include="Settings\TypeSettingPolicy.cs" />
+    <Compile Include="Startable\StartableExtension.cs" />
+    <Compile Include="TypeTracking\Dependant.cs" />
+    <Compile Include="TypeTracking\Dependencies.cs" />
+    <Compile Include="TypeTracking\Dependency.cs" />
+    <Compile Include="TypeTracking\ITypeTrackingExtension.cs" />
+    <Compile Include="TypeTracking\TypeExtensionMethods.cs" />
+    <Compile Include="TypeTracking\TypeTrackingExtension.cs" />
+    <Compile Include="TypeTracking\TypeTrackingExtensionMethods.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
