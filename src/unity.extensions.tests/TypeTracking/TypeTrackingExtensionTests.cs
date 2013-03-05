@@ -18,6 +18,15 @@ namespace unity.extensions.tests.TypeTracking
         private UnityContainer _container;
 
         [Test]
+        public void CanResolve_ClassWithCtorAndMethodDependency()
+        {
+            _container.RegisterType<ClassWithCtorAndMethodDependency>();
+            _container.RegisterType<IRepository, SimpleRepository>();
+            _container.RegisterType<IService, SimpleService>();
+            Assert.That(_container.CanResolve<ClassWithCtorAndMethodDependency>(), Is.True);
+        }
+
+        [Test]
         public void CanResolve_ClassWithTwoConstructors_if_registered_properly()
         {
             _container.RegisterType<IRepository, SimpleRepository>();
@@ -71,17 +80,46 @@ namespace unity.extensions.tests.TypeTracking
         }
 
         [Test]
+        public void CanResolve_returns_false_for_ClassWithCtorAndMethodDependency()
+        {
+            _container.RegisterType<IRepository, SimpleRepository>();
+            Assert.That(_container.CanResolve<ClassWithCtorAndMethodDependency>(), Is.False);
+        }
+
+        [Test]
         public void CanResolve_returns_false_for_ClassWithTwoConstructors()
         {
             Assert.That(_container.CanResolve<ClassWithTwoConstructors>(), Is.False);
         }
 
-        //[Test]
-        //public void DDD()
-        //{
-        //    _container.RegisterType<TestClass>(new InjectionMember[] { new InjectionProperty("Prop1") });
-        //    _container.Resolve<TestClass>();
-        //}
+        [Test]
+        public void Extension_should_notify_when_type_can_be_resolved()
+        {
+            bool called = false;
+            _container.WhenCanBeResolved<ClassWithCtorAndMethodDependency>(string.Empty, (t, n) => called = true);
+            _container.RegisterType<ClassWithCtorAndMethodDependency>();
+            _container.RegisterType<IRepository, SimpleRepository>();
+            _container.RegisterType<IService, SimpleService>();
+            Assert.That(called, Is.True);
+        }
+    }
+
+    public class SimpleService : IService {}
+
+
+    public class ClassWithCtorAndMethodDependency
+    {
+// ReSharper disable NotAccessedField.Local
+        private readonly IRepository _repository;
+// ReSharper restore NotAccessedField.Local
+
+        public ClassWithCtorAndMethodDependency(IRepository repository)
+        {
+            _repository = repository;
+        }
+
+        [InjectionMethod]
+        public void Load(IService service) {}
     }
 
     public class TestClass

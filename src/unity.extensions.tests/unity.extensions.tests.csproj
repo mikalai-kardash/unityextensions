@@ -65,6 +65,7 @@
     <Compile Include="TypeTracking\ClassWithoutInjectionMethods.cs" />
     <Compile Include="TypeTracking\ClassWithTwoConstructors.cs" />
     <Compile Include="TypeTracking\IRepository.cs" />
+    <Compile Include="TypeTracking\IService.cs" />
     <Compile Include="TypeTracking\SimpleClass.cs" />
     <Compile Include="TypeTracking\SimpleClassWithConstructor.cs" />
     <Compile Include="TypeTracking\SimpleDependency.cs" />

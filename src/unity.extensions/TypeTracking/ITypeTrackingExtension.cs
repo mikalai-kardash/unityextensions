@@ -7,5 +7,8 @@ namespace Microsoft.Practices.Unity.TypeTracking
         bool CanResolve<T>();
         bool CanResolve<T>(string name);
         bool CanResolve(Type type, string name);
+
+        ITypeTrackingExtension WhenCanBeResolved<T>(string name, Action<T, string> onAvailableForResolution);
+        ITypeTrackingExtension WhenCanBeResolved<T>(Action<T, string> onAvailableForResolution);
     }
 }

@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using Microsoft.Practices.ObjectBuilder2;
-using Microsoft.Practices.Unity.ObjectBuilder;
 
 namespace Microsoft.Practices.Unity.TypeTracking
 {
@@ -36,30 +33,44 @@ namespace Microsoft.Practices.Unity.TypeTracking
             }
 
             // Check if there is InjectionConstructor
-            foreach (var ctor in type.GetConstructors(BindingFlags.Instance | BindingFlags.Public))
+            bool canResolveCtorDependencies = false;
+            var injectionCtor = type.GetInjectionConstructor();
+            if (injectionCtor != null)
             {
-                var attrs = ctor.GetCustomAttributes(typeof(InjectionConstructorAttribute), true);
-                if (attrs.Length == 0)
+                canResolveCtorDependencies =
+                    injectionCtor.GetParameters().All(p => CanResolve(p.ParameterType, string.Empty));
+            }
+            else if (null != type.GetConstructor(Type.EmptyTypes))
+            {
+                canResolveCtorDependencies = true;
+            }
+            else if (type.GetConstructors().Length == 1)
+            {
+                var ctor = type.GetConstructors()[0];
+                canResolveCtorDependencies = ctor.GetParameters().All(p => CanResolve(p.ParameterType, string.Empty));
+            }
+
+            bool canResolveMethodDependencies = true;
+            foreach (var method in type.GetInjectionMethods())
+            {
+                var canResolveDependencies = method.GetParameters().All(p => CanResolve(p.ParameterType, string.Empty));
+                if (!canResolveDependencies)
                 {
-                    continue;
+                    canResolveMethodDependencies = false;
+                    break;
                 }
-                return ctor.GetParameters().All(p => CanResolve(p.ParameterType, string.Empty));
             }
+            return canResolveCtorDependencies && canResolveMethodDependencies;
+        }
 
-            // Check if type has default constructor.
-            if (null != type.GetConstructor(Type.EmptyTypes))
-            {
-                return true;
-            }
+        public ITypeTrackingExtension WhenCanBeResolved<T>(string name, Action<T, string> onAvailableForResolution)
+        {
+            return this;
+        }
 
-            // Check if type has the only constructor.
-            var ctors = type.GetConstructors();
-            if (ctors.Length == 1)
-            {
-                var ctor = ctors[0];
-                return ctor.GetParameters().All(p => CanResolve(p.ParameterType, string.Empty));
-            }
-            return false;
+        public ITypeTrackingExtension WhenCanBeResolved<T>(Action<T, string> onAvailableForResolution)
+        {
+            return this;
         }
 
         protected override void Initialize()
