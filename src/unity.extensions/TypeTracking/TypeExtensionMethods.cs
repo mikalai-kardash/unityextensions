@@ -4,6 +4,9 @@ using System.Reflection;
 
 namespace Microsoft.Practices.Unity.TypeTracking
 {
+    /// <summary>
+    /// Todo: Add ability to retrieve all properties with dependencies.
+    /// </summary>
     public static class TypeExtensionMethods
     {
         /// <summary>

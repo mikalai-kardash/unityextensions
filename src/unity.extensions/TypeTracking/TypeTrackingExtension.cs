@@ -82,6 +82,7 @@ namespace Microsoft.Practices.Unity.TypeTracking
         {
             if (e.TypeFrom != null)
             {
+                // Registering mapping between generic class and its concrete implementation
                 if (e.TypeFrom.IsInterface || e.TypeFrom.IsAbstract)
                 {
                     var dependant = new Dependant(e.TypeFrom, e.Name ?? string.Empty);
@@ -90,6 +91,16 @@ namespace Microsoft.Practices.Unity.TypeTracking
                         _registrations.Add(dependant, Dependencies.None);
                     }
                 }
+            }
+            else
+            {
+                // Registering class (no mapping)
+                var dependant = new Dependant(e.TypeTo, e.Name ?? string.Empty);
+                if (_registrations.ContainsKey(dependant))
+                {
+                    return;
+                }
+
             }
         }
     }

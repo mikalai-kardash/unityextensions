@@ -97,9 +97,11 @@ namespace unity.extensions.tests.TypeTracking
         {
             bool called = false;
             _container.WhenCanBeResolved<ClassWithCtorAndMethodDependency>(string.Empty, (t, n) => called = true);
+
             _container.RegisterType<ClassWithCtorAndMethodDependency>();
             _container.RegisterType<IRepository, SimpleRepository>();
             _container.RegisterType<IService, SimpleService>();
+
             Assert.That(called, Is.True);
         }
     }
