@@ -2,12 +2,12 @@
 
 namespace Microsoft.Practices.Unity.TypeTracking
 {
-    internal class Dependant
+    internal class RegisteredType
     {
         private readonly string _name;
         private readonly Type _type;
 
-        public Dependant(Type type, string name)
+        public RegisteredType(Type type, string name)
         {
             _type = type;
             _name = name;
@@ -29,7 +29,7 @@ namespace Microsoft.Practices.Unity.TypeTracking
             }
         }
 
-        protected bool Equals(Dependant other)
+        protected bool Equals(RegisteredType other)
         {
             return string.Equals(_name, other._name) && _type == other._type;
         }
@@ -56,7 +56,7 @@ namespace Microsoft.Practices.Unity.TypeTracking
             {
                 return false;
             }
-            return Equals((Dependant)obj);
+            return Equals((RegisteredType)obj);
         }
     }
 }
