@@ -207,7 +207,7 @@ namespace Microsoft.Practices.Unity.TypeTracking
         private RegisteredTypesList GetDependencies(Type type)
         {
             var dependencies = new RegisteredTypesList();
-            ConstructorInfo initCtor = type.GetInjectionConstructor();
+            ConstructorInfo initCtor = type.GetInvokationConstructor();
             if (initCtor != null)
             {
                 foreach (ParameterInfo parameter in initCtor.GetParameters())

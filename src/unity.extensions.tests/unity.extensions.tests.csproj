@@ -68,6 +68,7 @@
     <Compile Include="Settings\ThrowableRepository.cs" />
     <Compile Include="Settings\ThrowableTester.cs" />
     <Compile Include="Settings\TypeSettingPolicyTests.cs" />
+    <Compile Include="Startable\StartableExtensionTests.cs" />
     <Compile Include="TypeTracking\ClassWithCtorAndMethodDependency.cs" />
     <Compile Include="TypeTracking\ClassWithDependency.cs" />
     <Compile Include="TypeTracking\ClassWithDependencyWithDependency.cs" />
