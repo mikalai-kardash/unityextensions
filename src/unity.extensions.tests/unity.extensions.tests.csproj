@@ -68,7 +68,9 @@
     <Compile Include="Settings\ThrowableRepository.cs" />
     <Compile Include="Settings\ThrowableTester.cs" />
     <Compile Include="Settings\TypeSettingPolicyTests.cs" />
+    <Compile Include="TypeTracking\ClassWithCtorAndMethodDependency.cs" />
     <Compile Include="TypeTracking\ClassWithDependency.cs" />
+    <Compile Include="TypeTracking\ClassWithDependencyWithDependency.cs" />
     <Compile Include="TypeTracking\ClassWithInjectionMethods.cs" />
     <Compile Include="TypeTracking\ClassWithoutInjectionMethods.cs" />
     <Compile Include="TypeTracking\ClassWithTwoConstructors.cs" />
@@ -80,6 +82,8 @@
     <Compile Include="TypeTracking\SimpleClassWithConstructor.cs" />
     <Compile Include="TypeTracking\SimpleDependency.cs" />
     <Compile Include="TypeTracking\SimpleRepository.cs" />
+    <Compile Include="TypeTracking\SimpleService.cs" />
+    <Compile Include="TypeTracking\TestClass.cs" />
     <Compile Include="TypeTracking\TypeExtensionMethodsTests.cs" />
     <Compile Include="TypeTracking\TypeTrackingExtensionTests.cs" />
     <Compile Include="UnityContainerTests.cs" />

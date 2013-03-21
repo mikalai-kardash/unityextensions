@@ -109,6 +109,13 @@ namespace Microsoft.Practices.Unity.TypeTracking
         protected override void Initialize()
         {
             Context.Registering += OnTypeRegistering;
+            Context.RegisteringInstance += OnInstanceRegistering;
+        }
+
+        private void OnInstanceRegistering(object sender, RegisterInstanceEventArgs e)
+        {
+            UpdateDependencies(new RegisteredType(e.RegisteredType, e.Name ?? string.Empty));
+            RaiseEventIfSomethingCanBeResolved();
         }
 
         private void OnTypeRegistering(object sender, RegisterEventArgs e)
@@ -132,20 +139,7 @@ namespace Microsoft.Practices.Unity.TypeTracking
                 return;
             }
 
-            // See it this type is the actual dependency for some other type.
-            if (_dependencies.ContainsKey(dependant))
-            {
-                RegisteredType dependency = dependant;
-                RegisteredTypesList dependants = _dependencies[dependency];
-                foreach (RegisteredType d in dependants)
-                {
-                    _dependants[d].Remove(dependency);
-                    if (_dependants[d].NoDependencies)
-                    {
-                        SetToRaiseEventCanBeResolved(d);
-                    }
-                }
-            }
+            UpdateDependencies(dependant);
 
             // Record all type's dependencies.
             RegisteredTypesList registeredTypesList = GetDependencies(e.TypeTo ?? e.TypeFrom);
@@ -165,6 +159,25 @@ namespace Microsoft.Practices.Unity.TypeTracking
             //Raise event for dependencies that can be resolved now
             RaiseEventIfSomethingCanBeResolved();
         }
+
+        private void UpdateDependencies(RegisteredType dependant)
+        {
+// See it this type is the actual dependency for some other type.
+            if (_dependencies.ContainsKey(dependant))
+            {
+                RegisteredType dependency = dependant;
+                RegisteredTypesList dependants = _dependencies[dependency];
+                foreach (RegisteredType d in dependants)
+                {
+                    _dependants[d].Remove(dependency);
+                    if (_dependants[d].NoDependencies)
+                    {
+                        SetToRaiseEventCanBeResolved(d);
+                    }
+                }
+            }
+        }
+
 
         private void RaiseEventIfSomethingCanBeResolved()
         {

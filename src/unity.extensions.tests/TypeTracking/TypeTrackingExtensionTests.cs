@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Microsoft.Practices.Unity;
+﻿using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.TypeTracking;
 using NUnit.Framework;
 
@@ -93,6 +92,15 @@ namespace unity.extensions.tests.TypeTracking
         }
 
         [Test]
+        public void Extension_should_analyze_dependencies_of_dependencies()
+        {
+            bool called = false;
+            _container.WhenCanBeResolved<ClassWithDependencyWithDependency>(string.Empty, (t, n) => called = true);
+            _container.RegisterType<ClassWithDependency>();
+            Assert.That(called, Is.False);
+        }
+
+        [Test]
         public void Extension_should_notify_when_type_can_be_resolved()
         {
             bool called = false;
@@ -104,40 +112,18 @@ namespace unity.extensions.tests.TypeTracking
 
             Assert.That(called, Is.True);
         }
-    }
 
-    public class SimpleService : IService {}
-
-
-    public class ClassWithCtorAndMethodDependency
-    {
-// ReSharper disable NotAccessedField.Local
-        private readonly IRepository _repository;
-// ReSharper restore NotAccessedField.Local
-
-        public ClassWithCtorAndMethodDependency(IRepository repository)
+        [Test]
+        public void Extension_should_notify_when_type_can_be_resolved_if_instance_is_registered()
         {
-            _repository = repository;
-        }
+            bool called = false;
+            _container.WhenCanBeResolved<ClassWithCtorAndMethodDependency>(string.Empty, (t, n) => called = true);
 
-        [InjectionMethod]
-        public void Load(IService service) {}
-    }
+            _container.RegisterType<ClassWithCtorAndMethodDependency>();
+            _container.RegisterType<IRepository, SimpleRepository>();
+            _container.RegisterInstance<IService>(new SimpleService());
 
-    public class TestClass
-    {
-        [InjectionConstructor]
-        public TestClass()
-        {
-            Debug.WriteLine(".ctor");
-        }
-
-        public string Prop1 { get; set; }
-
-        [InjectionMethod]
-        public void Method()
-        {
-            Debug.WriteLine(".method");
+            Assert.That(called, Is.True);
         }
     }
 }
