@@ -31,19 +31,6 @@ namespace unity.extensions.tests.Startable
         }
 
         [Test]
-        public void Should_stop_startables_that_do_not_inherit_from_IStartable()
-        {
-            using (var container = new UnityContainer())
-            {
-                container.AddNewExtension<StartableExtension>();
-                container.Configure<IStartableExtension>()
-                         .RegisterStartable<OtherStartable>("Begin", "End");
-
-            }
-            Assert.That(OtherStartable.HasStopped, Is.True);
-        }
-
-        [Test]
         public void Should_not_start_startable_with_unregistered_dependency()
         {
             _container.RegisterType<StartableWithDependency>(new ContainerControlledLifetimeManager());
@@ -77,10 +64,52 @@ namespace unity.extensions.tests.Startable
         }
 
         [Test]
+        public void Should_stop_startables_that_do_not_inherit_from_IStartable()
+        {
+            using (var container = new UnityContainer())
+            {
+                container.AddNewExtension<StartableExtension>();
+                container.RegisterType<OtherStartable>(new ContainerControlledLifetimeManager());
+                container.Configure<IStartableExtension>()
+                         .RegisterStartable<OtherStartable>("Begin", "End");
+            }
+            Assert.That(OtherStartable.HasStopped, Is.True);
+        }
+
+        [Test]
         [Conditional("DEBUG")]
         public void Should_throw_if_registering_startable_as_not_a_singleton()
         {
             Assert.Throws<InvalidOperationException>(() => _container.RegisterType<SimpleStartable>());
+        }
+
+        [Test]
+        [Conditional("DEBUG")]
+        public void Should_throw_when_end_method_is_mistyped()
+        {
+            _container.RegisterType<OtherStartable>(new ContainerControlledLifetimeManager());
+            Assert.Throws<InvalidOperationException>(
+                () => _container.Configure<IStartableExtension>()
+                                .RegisterStartable<OtherStartable>("Begin", "E"));
+        }
+
+        [Test]
+        [Conditional("DEBUG")]
+        public void Should_throw_when_startable_method_does_not_exist()
+        {
+            _container.RegisterType<OtherStartable>(new ContainerControlledLifetimeManager());
+            Assert.Throws<InvalidOperationException>(() =>
+                                                     _container.Configure<IStartableExtension>()
+                                                               .RegisterStartable<OtherStartable>("B", "End"));
+        }
+
+        [Test]
+        [Conditional("DEBUG")]
+        public void Should_throw_when_type_is_not_registered_as_singleton()
+        {
+            _container.RegisterType<OtherStartable>();
+            Assert.Throws<InvalidOperationException>(
+                () => _container.Configure<IStartableExtension>().RegisterStartable<OtherStartable>("Begin", "End"));
         }
     }
 }

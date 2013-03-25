@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Practices.Unity.TypeTracking;
 
@@ -13,15 +14,101 @@ namespace Microsoft.Practices.Unity.Startable
     {
         private readonly List<IStartableRegistration> _registrations = new List<IStartableRegistration>();
 
-        public IStartableExtension RegisterStartable<T>(string beginMethodName, string endMethodName)
+        public IStartableExtension RegisterStartable<T>(string startMethodName, string stopMethodName)
         {
-            Type type = typeof (T);
-            MethodInfo beginMethod = type.GetMethod(beginMethodName);
-            MethodInfo endMethod = type.GetMethod(endMethodName);
-            var registration = new OtherStartableRegistration(Container, type, string.Empty, beginMethod, endMethod);
+            return RegisterStartable(typeof (T), string.Empty, startMethodName, stopMethodName);
+        }
+
+        public IStartableExtension RegisterStartable<T>(string name, string startMethodName, string stopMethodName)
+        {
+            return RegisterStartable(typeof (T), name ?? string.Empty, startMethodName, stopMethodName);
+        }
+
+        public IStartableExtension RegisterStartable(
+            Type type,
+            string name,
+            string startMethodName,
+            string stopMethodName)
+        {
+            MethodInfo startMethod = type.GetMethod(startMethodName);
+            MethodInfo stopMethod = type.GetMethod(stopMethodName);
+            VerifyContainerRegistration(type, name);
+            VerifyStartMethod(type, startMethodName, startMethod);
+            VerifyEndMethod(type, stopMethodName, stopMethod);
+            var registration = new OtherStartableRegistration(Container, type, string.Empty, startMethod, stopMethod);
             StartRegistration(registration, type);
             _registrations.Add(registration);
             return this;
+        }
+
+        public IStartableExtension RegisterStartable(Type type, string startMethodName, string stopMethodName)
+        {
+            return RegisterStartable(type, string.Empty, startMethodName, stopMethodName);
+        }
+
+        [Conditional("DEBUG")]
+// ReSharper disable UnusedParameter.Local
+        private static void VerifyEndMethod(Type type, string endMethodName, MethodInfo endMethod)
+// ReSharper restore UnusedParameter.Local
+        {
+            if (endMethod == null)
+            {
+                throw new InvalidOperationException(
+                    string.Format(
+                        "Stop method with name '{0}' is not implemented for '{1}'. Make sure there no typo or that method is implemented.",
+                        endMethodName,
+                        type));
+            }
+        }
+
+        [Conditional("DEBUG")]
+// ReSharper disable UnusedParameter.Local
+        private static void VerifyStartMethod(Type type, string beginMethodName, MethodInfo beginMethod)
+// ReSharper restore UnusedParameter.Local
+        {
+            if (beginMethod == null)
+            {
+                throw new InvalidOperationException(
+                    string.Format(
+                        "Start method with name '{0}' is not implemented for '{1}'. Make sure there is no typo or that method is implemented.",
+                        beginMethodName, type));
+            }
+        }
+
+        [Conditional("DEBUG")]
+        private void VerifyContainerRegistration(Type type, string name)
+        {
+            Func<ContainerRegistration, bool> theOne = cr =>
+                {
+                    bool sameTime = cr.RegisteredType == type;
+                    bool sameName;
+                    if (string.IsNullOrEmpty(name))
+                    {
+                        sameName = true;
+                    }
+                    else
+                    {
+                        sameName = cr.Name == name;
+                    }
+                    return sameTime && sameName;
+                };
+            ContainerRegistration containerRegistration = Container.Registrations.FirstOrDefault(theOne);
+            if (containerRegistration == null)
+            {
+                throw new InvalidOperationException(
+                    string.Format(
+                        "The '{0}' with name '{1}' is not registered. Please register it first.",
+                        type,
+                        name));
+            }
+            if (!(containerRegistration.LifetimeManager is ContainerControlledLifetimeManager))
+            {
+                throw new InvalidOperationException(
+                    string.Format(
+                        "The '{0}' type with name '{1}' is not registered as singleton. Make sure it is registered with ContainerControlledLifetimeManager or HierarchicalLifetimeManager.",
+                        type,
+                        name));
+            }
         }
 
         private void StartRegistration(IStartableRegistration registration, Type type)
