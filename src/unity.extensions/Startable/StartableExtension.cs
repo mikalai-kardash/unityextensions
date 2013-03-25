@@ -10,6 +10,11 @@ namespace Microsoft.Practices.Unity.Startable
     {
         protected override void Initialize()
         {
+            var typeTracking = Container.Configure<ITypeTrackingExtension>();
+            if (typeTracking == null)
+            {
+                Container.AddNewExtension<TypeTrackingExtension>();
+            }
             Context.Registering += OnRegisteringType;
         }
 

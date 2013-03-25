@@ -43,20 +43,11 @@ namespace Microsoft.Practices.Unity.TypeTracking
 
             // Check if there is InjectionConstructor
             bool canResolveCtorDependencies = false;
-            ConstructorInfo injectionCtor = type.GetInjectionConstructor();
+            ConstructorInfo injectionCtor = type.GetInvokationConstructor();
             if (injectionCtor != null)
             {
                 canResolveCtorDependencies =
                     injectionCtor.GetParameters().All(p => CanResolve(p.ParameterType, string.Empty));
-            }
-            else if (null != type.GetConstructor(Type.EmptyTypes))
-            {
-                canResolveCtorDependencies = true;
-            }
-            else if (type.GetConstructors().Length == 1)
-            {
-                ConstructorInfo ctor = type.GetConstructors()[0];
-                canResolveCtorDependencies = ctor.GetParameters().All(p => CanResolve(p.ParameterType, string.Empty));
             }
 
             bool canResolveMethodDependencies = true;

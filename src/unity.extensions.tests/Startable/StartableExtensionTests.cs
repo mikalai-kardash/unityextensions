@@ -13,7 +13,6 @@ namespace unity.extensions.tests.Startable
         public void SetUp()
         {
             _container = new UnityContainer();
-            _container.AddNewExtension<TypeTrackingExtension>();
             _container.AddNewExtension<StartableExtension>();
         }
 
