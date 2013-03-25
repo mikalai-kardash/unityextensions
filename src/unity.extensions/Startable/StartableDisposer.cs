@@ -5,10 +5,10 @@ namespace Microsoft.Practices.Unity.Startable
 {
     internal class StartableDisposer : IDisposable
     {
-        private readonly List<WeakReference<IStartable>> _startables;
+        private readonly List<IStartableRegistration> _startables;
         private bool _isDisposed;
 
-        public StartableDisposer(List<WeakReference<IStartable>> startables)
+        public StartableDisposer(List<IStartableRegistration> startables)
         {
             _startables = startables;
         }
@@ -26,15 +26,11 @@ namespace Microsoft.Practices.Unity.Startable
             }
             if (isDisposing)
             {
-                WeakReference<IStartable>[] references = _startables.ToArray();
+                IStartableRegistration[] registrations = _startables.ToArray();
                 _startables.Clear();
-                foreach (var reference in references)
+                foreach (IStartableRegistration registration in registrations)
                 {
-                    IStartable startable;
-                    if (reference.TryGetTarget(out startable))
-                    {
-                        startable.Stop();
-                    }
+                    registration.Stop();
                 }
             }
             _isDisposed = true;

@@ -20,6 +20,30 @@ namespace unity.extensions.tests.Startable
         private UnityContainer _container;
 
         [Test]
+        public void Should_configure_startables_without_forcing_to_inherit_from_IStartable()
+        {
+            _container
+                .RegisterType<OtherStartable>(new ContainerControlledLifetimeManager())
+                .Configure<IStartableExtension>()
+                .RegisterStartable<OtherStartable>("Begin", "End");
+
+            Assert.That(OtherStartable.HasStarted, Is.True);
+        }
+
+        [Test]
+        public void Should_stop_startables_that_do_not_inherit_from_IStartable()
+        {
+            using (var container = new UnityContainer())
+            {
+                container.AddNewExtension<StartableExtension>();
+                container.Configure<IStartableExtension>()
+                         .RegisterStartable<OtherStartable>("Begin", "End");
+
+            }
+            Assert.That(OtherStartable.HasStopped, Is.True);
+        }
+
+        [Test]
         public void Should_not_start_startable_with_unregistered_dependency()
         {
             _container.RegisterType<StartableWithDependency>(new ContainerControlledLifetimeManager());

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using Microsoft.Practices.Unity.TypeTracking;
 
 namespace Microsoft.Practices.Unity.Startable
@@ -8,10 +9,34 @@ namespace Microsoft.Practices.Unity.Startable
     /// <summary>
     ///     This extension tracks startable components and whenever possible (all dependencies resolved) starts them.
     /// </summary>
-    public class StartableExtension : UnityContainerExtension
+    public class StartableExtension : UnityContainerExtension, IStartableExtension
     {
-        private readonly List<WeakReference<IStartable>> _startables = new List<WeakReference<IStartable>>();
- 
+        private readonly List<IStartableRegistration> _registrations = new List<IStartableRegistration>();
+
+        public IStartableExtension RegisterStartable<T>(string beginMethodName, string endMethodName)
+        {
+            Type type = typeof (T);
+            MethodInfo beginMethod = type.GetMethod(beginMethodName);
+            MethodInfo endMethod = type.GetMethod(endMethodName);
+            var registration = new OtherStartableRegistration(Container, type, string.Empty, beginMethod, endMethod);
+            StartRegistration(registration, type);
+            _registrations.Add(registration);
+            return this;
+        }
+
+        private void StartRegistration(IStartableRegistration registration, Type type)
+        {
+            var typeTracking = Container.Configure<ITypeTrackingExtension>();
+            if (typeTracking.CanResolve(type, string.Empty))
+            {
+                registration.Start();
+            }
+            else
+            {
+                typeTracking.WhenCanBeResolved(type, (t, n) => registration.Start());
+            }
+        }
+
         protected override void Initialize()
         {
             var typeTracking = Container.Configure<ITypeTrackingExtension>();
@@ -20,7 +45,7 @@ namespace Microsoft.Practices.Unity.Startable
                 Container.AddNewExtension<TypeTrackingExtension>();
             }
             Context.Registering += OnRegisteringType;
-            Container.RegisterInstance(new StartableDisposer(_startables));
+            Container.RegisterInstance(new StartableDisposer(_registrations));
         }
 
         private void OnRegisteringType(object sender, RegisterEventArgs e)
@@ -44,7 +69,9 @@ namespace Microsoft.Practices.Unity.Startable
         }
 
         [Conditional("DEBUG")]
+// ReSharper disable UnusedParameter.Local
         private static void VerifyStartableIsSingleton(Type type, LifetimeManager lifetimeManager)
+// ReSharper restore UnusedParameter.Local
         {
             if (!(lifetimeManager is ContainerControlledLifetimeManager))
             {
@@ -57,7 +84,8 @@ namespace Microsoft.Practices.Unity.Startable
         {
             var startable = (IStartable) Container.Resolve(type, name);
             startable.Start();
-            _startables.Add(new WeakReference<IStartable>(startable));
+            var reference = new WeakReference<IStartable>(startable);
+            _registrations.Add(new StartableRegistration(reference));
         }
     }
 }
