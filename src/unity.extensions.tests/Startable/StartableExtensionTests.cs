@@ -39,6 +39,17 @@ namespace unity.extensions.tests.Startable
             _container.RegisterType<SimpleStartable>();
             Assert.That(SimpleStartable.HasStarted, Is.True);
         }
+
+        [Test]
+        public void Should_stop_startable_when_container_disposes()
+        {
+            using (var container = new UnityContainer())
+            {
+                container.AddNewExtension<StartableExtension>();
+                container.RegisterType<SimpleStartable>();
+            }
+            Assert.That(SimpleStartable.HasStopped, Is.True);
+        }
     }
 
     public class StartableWithDependency : SimpleStartable

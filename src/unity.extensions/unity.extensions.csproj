@@ -61,6 +61,7 @@
     <Compile Include="Settings\TypeRegistrationSettingStrategy.cs" />
     <Compile Include="Settings\TypeSettingPolicy.cs" />
     <Compile Include="Startable\IStartable.cs" />
+    <Compile Include="Startable\StartableDisposer.cs" />
     <Compile Include="Startable\StartableExtension.cs" />
     <Compile Include="TypeTracking\ParameterInfoExtensionMethods.cs" />
     <Compile Include="TypeTracking\PropertyInfoExtensionMethods.cs" />

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Practices.Unity.TypeTracking;
 
 namespace Microsoft.Practices.Unity.Startable
@@ -8,6 +9,8 @@ namespace Microsoft.Practices.Unity.Startable
     /// </summary>
     public class StartableExtension : UnityContainerExtension
     {
+        private readonly List<WeakReference<IStartable>> _startables = new List<WeakReference<IStartable>>();
+ 
         protected override void Initialize()
         {
             var typeTracking = Container.Configure<ITypeTrackingExtension>();
@@ -16,6 +19,7 @@ namespace Microsoft.Practices.Unity.Startable
                 Container.AddNewExtension<TypeTrackingExtension>();
             }
             Context.Registering += OnRegisteringType;
+            Container.RegisterInstance(new StartableDisposer(_startables));
         }
 
         private void OnRegisteringType(object sender, RegisterEventArgs e)
@@ -38,8 +42,9 @@ namespace Microsoft.Practices.Unity.Startable
 
         private void Start(Type type, string name)
         {
-            var instance = (IStartable) Container.Resolve(type, name);
-            instance.Start();
+            var startable = (IStartable) Container.Resolve(type, name);
+            startable.Start();
+            _startables.Add(new WeakReference<IStartable>(startable));
         }
     }
 }
