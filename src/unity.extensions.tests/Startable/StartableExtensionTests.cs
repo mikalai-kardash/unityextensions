@@ -1,6 +1,7 @@
-﻿using Microsoft.Practices.Unity;
+﻿using System;
+using System.Diagnostics;
+using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.Startable;
-using Microsoft.Practices.Unity.TypeTracking;
 using NUnit.Framework;
 using unity.extensions.tests.TypeTracking;
 
@@ -21,22 +22,22 @@ namespace unity.extensions.tests.Startable
         [Test]
         public void Should_not_start_startable_with_unregistered_dependency()
         {
-            _container.RegisterType<StartableWithDependency>();
-            Assert.That(StartableWithDependency.HasStarted, Is.False);
-        }
-
-        [Test]
-        public void Should_start_startable_with_dependency_once_it_is_registered()
-        {
-            _container.RegisterType<StartableWithDependency>();
-            _container.RegisterType<IService, SimpleService>();
-            Assert.That(StartableWithDependency.HasStarted, Is.True);
+            _container.RegisterType<StartableWithDependency>(new ContainerControlledLifetimeManager());
+            Assert.That(SimpleStartable.HasStarted, Is.False);
         }
 
         [Test]
         public void Should_start_a_simple_startable()
         {
-            _container.RegisterType<SimpleStartable>();
+            _container.RegisterType<SimpleStartable>(new HierarchicalLifetimeManager());
+            Assert.That(SimpleStartable.HasStarted, Is.True);
+        }
+
+        [Test]
+        public void Should_start_startable_with_dependency_once_it_is_registered()
+        {
+            _container.RegisterType<StartableWithDependency>(new HierarchicalLifetimeManager());
+            _container.RegisterType<IService, SimpleService>();
             Assert.That(SimpleStartable.HasStarted, Is.True);
         }
 
@@ -46,36 +47,16 @@ namespace unity.extensions.tests.Startable
             using (var container = new UnityContainer())
             {
                 container.AddNewExtension<StartableExtension>();
-                container.RegisterType<SimpleStartable>();
+                container.RegisterType<SimpleStartable>(new ContainerControlledLifetimeManager());
             }
             Assert.That(SimpleStartable.HasStopped, Is.True);
         }
-    }
 
-    public class StartableWithDependency : SimpleStartable
-    {
-        private readonly IService _service;
-
-        public StartableWithDependency(IService service)
+        [Test]
+        [Conditional("DEBUG")]
+        public void Should_throw_if_registering_startable_as_not_a_singleton()
         {
-            _service = service;
-        }
-    }
-
-    public class SimpleStartable : IStartable
-    {
-        public static bool HasStarted { get; set; }
-
-        public static bool HasStopped { get; set; }
-
-        public void Start()
-        {
-            HasStarted = true;
-        }
-
-        public void Stop()
-        {
-            HasStopped = true;
+            Assert.Throws<InvalidOperationException>(() => _container.RegisterType<SimpleStartable>());
         }
     }
 }
